@@ -1,16 +1,15 @@
+import classNames from 'classnames';
+import { arrayOf, bool, func, string } from 'prop-types';
 import React, { Component } from 'react';
 import autoBind from 'react-auto-bind';
-import { func, string, arrayOf, bool } from 'prop-types';
-import classNames from 'classnames';
-
-import BaseSelector from '../base-selector';
+import { createAccountFilter } from '../../filter/filters';
 import {
     AccountDetails,
     AccountNoMatch,
     AccountSuggestion,
 } from '../../subcomponents/account';
 import { Account, Locale } from '../../util/types';
-import { createAccountFilter } from '../../filter/filters';
+import BaseSelectorDownshift from '../base-selector/BaseSelectorDownshift';
 
 class AccountSelector extends Component {
     constructor(props) {
@@ -46,11 +45,15 @@ class AccountSelector extends Component {
     }
 
     onAccountSelect(account) {
-        this.enableFilter = false;
-        this.props.onAccountSelected(account);
+        if (account) {
+            // temp
+            this.enableFilter = false;
+            this.props.onAccountSelected(account);
+        }
     }
 
     onInputChange(value) {
+        console.log('on input change', value);
         this.enableFilter = true;
         this.props.onChange(value);
     }
@@ -76,28 +79,34 @@ class AccountSelector extends Component {
             locale,
             selectedAccount,
             showBalance,
+            onReset,
+            value,
         } = this.props;
         return (
             <div
                 className={classNames('ffe-account-selector', className)}
                 id={`${id}-container`}
             >
-                <BaseSelector
-                    ref={this.assignBaseSelectorRef}
+                <BaseSelectorDownshift
+                    suggestions={this.filterSuggestions()}
                     renderSuggestion={this.renderSuggestion}
                     renderNoMatches={this.renderNoMatches}
+                    onInputChange={this.onInputChange}
+                    onSelect={this.onAccountSelect}
+                    onReset={onReset}
+                    locale={locale}
+                    value={value}
+                />
+                {/* <BaseSelector
+                    ref={this.assignBaseSelectorRef}
                     shouldHideSuggestionsOnSelect={true}
                     shouldSelectHighlightedOnTab={true}
                     shouldHideSuggestionsOnBlur={true}
                     shouldHideSuggestionsOnReset={false}
                     onSuggestionSelect={this.onSuggestionSelect}
-                    suggestionFilter={createAccountFilter(this.enableFilter)}
-                    suggestions={this.filterSuggestions()}
+                    suggestionFilter={createAccountFilter(this.enableFilter)} -  unused
                     {...this.props}
-                    onSelect={this.onAccountSelect}
-                    onChange={this.onInputChange}
-                    locale={locale}
-                />
+                /> */}
                 {selectedAccount && (
                     <AccountDetails
                         account={selectedAccount}
@@ -132,6 +141,8 @@ AccountSelector.propTypes = {
     /** Called on changes in the input field */
     onChange: func.isRequired,
     selectedAccount: Account,
+    /* Called when pressing escape in the input field */
+    onReset: func,
     /** Default true. */
     showBalance: bool,
     value: string.isRequired,
