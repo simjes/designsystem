@@ -27,16 +27,9 @@ const SuggestionListDownshift = ({
             ) : suggestions.length > 0 ? (
                 // todo: autoheight // scrollbars?'
                 <List
-                    innerElementType={forwardRef(
-                        (props, ref) => (
-                            <ul
-                                ref={ref}
-                                className="ffe-base-selector__suggestion-container-list"
-                                {...getMenuProps()}
-                                {...props}
-                            />
-                        ),
-                    )}
+                    innerElementType={forwardRef((props, ref) => (
+                        <Ul {...props} ref={ref} getMenuProps={getMenuProps} />
+                    ))}
                     height={heightMax}
                     itemCount={suggestions.length}
                     itemSize={itemSize}
@@ -51,20 +44,24 @@ const SuggestionListDownshift = ({
                     // ref={props.refList}
                     //     style={{ overflow: false }}
                 >
-                    {/* { isOpen&& suggestions.length > 0 && ( */}
                     {SuggestionItemRow}
                 </List>
             ) : (
-                <ul
-                    {...getMenuProps()}
-                    className="ffe-base-selector__suggestion-container-list"
-                >
+                <Ul getMenuProps={getMenuProps}>
                     <li>{renderNoMatches()}</li>
-                </ul>
+                </Ul>
             )}
         </div>
     );
 };
+
+const Ul = ({ getMenuProps, ...rest }) => (
+    <ul
+        {...getMenuProps()}
+        {...rest}
+        className="ffe-base-selector__suggestion-container-list"
+    />
+);
 
 SuggestionListDownshift.propTypes = {
     suggestions: arrayOf(object).isRequired,
