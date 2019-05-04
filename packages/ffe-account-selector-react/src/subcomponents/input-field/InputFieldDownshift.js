@@ -4,47 +4,53 @@ import classNames from 'classnames';
 import { bool, func, string } from 'prop-types';
 import React from 'react';
 import txt from '../../i18n/i18n';
-import { Locale, KeyCodes } from '../../util/types';
+import { KeyCodes, Locale } from '../../util/types';
 
 const InputFieldDownshift = ({
-    isOpen,
     openMenu,
     shouldShowSuggestionsOnFocus,
+    shouldHideSuggestionsOnReset,
     clearSelection,
     onReset,
     placeholder,
     readOnly,
-    selectedItem,
+    value,
     locale,
     getInputProps,
     getToggleButtonProps,
     ariaInvalid,
 }) => {
-    const showReset = !readOnly && selectedItem;
+    const showReset = !readOnly && value.length > 0;
+
+    const onResetClick = () => {
+        onReset();
+
+        if (!shouldHideSuggestionsOnReset) {
+            openMenu();
+        }
+    };
 
     return (
         <>
             <input
-                // id={id}
-                // name={name}
-                // readOnly={readOnly}
                 {...getInputProps({
-                    isOpen,
-                    placeholder: placeholder,
+                    placeholder,
                     onKeyDown: event => {
                         if (event.keyCode === KeyCodes.ESC) {
                             onReset();
                         }
                     },
+                    onClick: shouldShowSuggestionsOnFocus ? openMenu : null,
+                    onFocus: shouldShowSuggestionsOnFocus ? openMenu : null,
                 })}
-                onFocus={shouldShowSuggestionsOnFocus ? openMenu : null}
+                readOnly={readOnly}
                 className="ffe-input-field ffe-base-selector__input-field"
                 aria-invalid={ariaInvalid}
             />
             {showReset && (
                 <button
                     className="ffe-base-selector__reset-button"
-                    onClick={() => clearSelection(onReset)}
+                    onClick={() => clearSelection(onResetClick)}
                     type="button"
                     aria-label={txt[locale].RESET_SEARCH}
                 >
@@ -57,10 +63,6 @@ const InputFieldDownshift = ({
                     onKeyDown: event => {
                         if (event.keyCode === KeyCodes.ESC) {
                             onReset();
-                        }
-
-                        if (event.keyCode === KeyCodes.SPACE) {
-                            console.log('wee');
                         }
                     },
                 })}
@@ -79,12 +81,15 @@ const InputFieldDownshift = ({
 };
 
 InputFieldDownshift.propTypes = {
-    isOpen: bool.isRequired,
     placeholder: string,
     locale: Locale.isRequired,
     getToggleButtonProps: func.isRequired,
     getInputProps: func.isRequired,
     ariaInvalid: bool,
+    value: string.isRequired,
+
+    shouldShowSuggestionsOnFocus: bool.isRequired,
+    shouldHideSuggestionsOnReset: bool.isRequired,
 };
 
 InputFieldDownshift.defaultProps = {

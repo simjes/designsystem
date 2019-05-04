@@ -4,7 +4,7 @@ Kontovelger for én konto.
 initialState = { value: '' };
 
 <React.Fragment>
-    <Label htmlFor="account-selector-single">Velg konto</Label>
+    <Label htmlFor="account-selector-single">Velg konto</Label> {/* Todo: move to selector? */}
     <AccountSelector
         accounts={[
             {

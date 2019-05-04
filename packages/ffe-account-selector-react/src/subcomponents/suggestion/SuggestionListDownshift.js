@@ -1,12 +1,14 @@
 import Spinner from '@sb1/ffe-spinner-react';
 import { arrayOf, bool, func, number, object } from 'prop-types';
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { FixedSizeList as List } from 'react-window';
 import SuggestionItemRow from './SuggestionItemDownshift';
 
 const SuggestionListDownshift = ({
     suggestions,
+    isOpen,
     getItemProps,
+    getMenuProps,
     highlightedIndex,
     selectedItem,
     renderSuggestion,
@@ -15,47 +17,64 @@ const SuggestionListDownshift = ({
     heightMax,
     itemSize,
 }) => {
-    return isLoading ? (
-        <Spinner center={true} large={true} />
-    ) : suggestions.length > 0 ? (
-        // todo: autoheight
-        // scrollbars?'
-        <div className="ffe-base-selector__suggestion-container">
-            <List
-                // className="ffe-base-selector__suggestion-container"
-                height={heightMax}
-                itemCount={suggestions.length}
-                itemSize={itemSize}
-                itemData={{
-                    // forwardProps: props,
-                    suggestions,
-                    getItemProps,
-                    highlightedIndex,
-                    selectedItem,
-                    renderSuggestion,
-                }}
-                // ref={props.refList}
-                //     style={{ overflow: false }}
-
-                className="ffe-base-selector__suggestion-container-list"
-                // role="listbox"
-                // id={id}
-            >
-                {SuggestionItemRow}
-            </List>
+    return (
+        <div
+            className="ffe-base-selector__suggestion-container"
+            style={{ display: isOpen ? 'block' : 'none' }}
+        >
+            {isLoading ? (
+                <Spinner center={true} large={true} />
+            ) : suggestions.length > 0 ? (
+                // todo: autoheight // scrollbars?'
+                <List
+                    innerElementType={forwardRef(
+                        (props, ref) => (
+                            <ul
+                                ref={ref}
+                                className="ffe-base-selector__suggestion-container-list"
+                                {...getMenuProps()}
+                                {...props}
+                            />
+                        ),
+                    )}
+                    height={heightMax}
+                    itemCount={suggestions.length}
+                    itemSize={itemSize}
+                    itemData={{
+                        // forwardProps: props,
+                        suggestions,
+                        getItemProps,
+                        highlightedIndex,
+                        selectedItem,
+                        renderSuggestion,
+                    }}
+                    // ref={props.refList}
+                    //     style={{ overflow: false }}
+                >
+                    {/* { isOpen&& suggestions.length > 0 && ( */}
+                    {SuggestionItemRow}
+                </List>
+            ) : (
+                <ul
+                    {...getMenuProps()}
+                    className="ffe-base-selector__suggestion-container-list"
+                >
+                    <li>{renderNoMatches()}</li>
+                </ul>
+            )}
         </div>
-    ) : (
-        <li>{renderNoMatches()}</li>
     );
 };
 
 SuggestionListDownshift.propTypes = {
     suggestions: arrayOf(object).isRequired,
+    isOpen: bool.isRequired,
     highlightedIndex: number,
     renderSuggestion: func.isRequired,
     selectedItem: object,
     renderNoMatches: func,
     getItemProps: func.isRequired,
+    getMenuProps: func.isRequired,
     isLoading: bool,
     refList: object,
     heightMax: number,

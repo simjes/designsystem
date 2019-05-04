@@ -53,7 +53,6 @@ class AccountSelector extends Component {
     }
 
     onInputChange(value) {
-        console.log('on input change', value);
         this.enableFilter = true;
         this.props.onChange(value);
     }
@@ -74,13 +73,14 @@ class AccountSelector extends Component {
 
     render() {
         const {
-            className,
             id,
+            className,
             locale,
             selectedAccount,
             showBalance,
             onReset,
             value,
+            readOnly,
         } = this.props;
         return (
             <div
@@ -88,25 +88,22 @@ class AccountSelector extends Component {
                 id={`${id}-container`}
             >
                 <BaseSelectorDownshift
+                    // TODO: memoize?
+                    id={id}
                     suggestions={this.filterSuggestions()}
                     renderSuggestion={this.renderSuggestion}
                     renderNoMatches={this.renderNoMatches}
                     onInputChange={this.onInputChange}
-                    onSelect={this.onAccountSelect}
+                    onSuggestionSelect={this.onAccountSelect}
                     onReset={onReset}
                     locale={locale}
                     value={value}
-                />
-                {/* <BaseSelector
-                    ref={this.assignBaseSelectorRef}
                     shouldHideSuggestionsOnSelect={true}
-                    shouldSelectHighlightedOnTab={true}
+                    //shouldSelectHighlightedOnTab={true} // Todo: meh
                     shouldHideSuggestionsOnBlur={true}
                     shouldHideSuggestionsOnReset={false}
-                    onSuggestionSelect={this.onSuggestionSelect}
-                    suggestionFilter={createAccountFilter(this.enableFilter)} -  unused
-                    {...this.props}
-                /> */}
+                    readOnly={readOnly}
+                />
                 {selectedAccount && (
                     <AccountDetails
                         account={selectedAccount}
