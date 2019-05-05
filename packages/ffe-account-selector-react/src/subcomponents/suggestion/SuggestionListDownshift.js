@@ -10,7 +10,6 @@ const SuggestionListDownshift = ({
     getItemProps,
     getMenuProps,
     highlightedIndex,
-    selectedItem,
     renderSuggestion,
     renderNoMatches,
     isLoading,
@@ -28,7 +27,11 @@ const SuggestionListDownshift = ({
                 // todo: autoheight // scrollbars?'
                 <List
                     innerElementType={forwardRef((props, ref) => (
-                        <SuggestionList {...props} ref={ref} getMenuProps={getMenuProps} />
+                        <SuggestionList
+                            {...props}
+                            ref={ref}
+                            getMenuProps={getMenuProps}
+                        />
                     ))}
                     height={heightMax}
                     itemCount={suggestions.length}
@@ -37,7 +40,6 @@ const SuggestionListDownshift = ({
                         suggestions,
                         getItemProps,
                         highlightedIndex,
-                        selectedItem,
                         renderSuggestion,
                     }}
                 >
@@ -64,23 +66,26 @@ SuggestionListDownshift.propTypes = {
     suggestions: arrayOf(object).isRequired,
     isOpen: bool.isRequired,
     highlightedIndex: number,
-    renderSuggestion: func.isRequired,
     selectedItem: object,
-    renderNoMatches: func,
-    getItemProps: func.isRequired,
-    getMenuProps: func.isRequired,
     isLoading: bool,
     heightMax: number,
     autoHeight: bool,
     itemSize: number,
+
+    getMenuProps: func.isRequired,
+    getItemProps: func.isRequired,
+    renderNoMatches: func,
+
+    renderSuggestion: func.isRequired,
 };
 
 SuggestionListDownshift.defaultProps = {
-    renderNoMatches: () => {},
     isLoading: false,
-    itemSize: 55,
     heightMax: 300,
     autoHeight: true,
+    itemSize: 55,
+
+    renderNoMatches: () => {},
 };
 
 export default SuggestionListDownshift;

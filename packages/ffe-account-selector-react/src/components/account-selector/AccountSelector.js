@@ -16,8 +16,6 @@ class AccountSelector extends Component {
         super(props);
         autoBind(this);
 
-        this.baseSelector = null;
-
         this.enableFilter = false;
     }
 
@@ -31,10 +29,6 @@ class AccountSelector extends Component {
         );
     }
 
-    assignBaseSelectorRef(baseSelector) {
-        this.baseSelector = baseSelector;
-    }
-
     renderNoMatches() {
         return (
             <AccountNoMatch
@@ -46,7 +40,6 @@ class AccountSelector extends Component {
 
     onAccountSelect(account) {
         if (account) {
-            // temp
             this.enableFilter = false;
             this.props.onAccountSelected(account);
         }
@@ -57,18 +50,10 @@ class AccountSelector extends Component {
         this.props.onChange(value);
     }
 
-    onSuggestionSelect(suggestion) {
-        if (suggestion) {
-            this.baseSelector.showOrHideSuggestions(false, () =>
-                this.onAccountSelect(suggestion),
-            );
-        }
-    }
-
     filterSuggestions() {
         const { value, accounts } = this.props;
-        const suggFilt = createAccountFilter(this.enableFilter);
-        return accounts.filter(suggFilt(value));
+        const accountFilter = createAccountFilter(this.enableFilter);
+        return accounts.filter(accountFilter(value));
     }
 
     render() {
@@ -129,7 +114,7 @@ AccountSelector.propTypes = {
      *      name: string.isRequired,
      *  }
      */
-    accounts: arrayOf(Account),
+    accounts: arrayOf(Account).isRequired,
     className: string,
     id: string.isRequired,
     /** 'nb', 'nn', or 'en' */
@@ -152,5 +137,14 @@ AccountSelector.propTypes = {
      */
     readOnly: bool,
 };
+
+AccountSelector.defaultProps = {
+    className: '',
+    noMatches: '',
+    selectAccount: null,
+    showBalance: true,
+    readOnly: false,
+    onReset: () => {},
+}
 
 export default AccountSelector;

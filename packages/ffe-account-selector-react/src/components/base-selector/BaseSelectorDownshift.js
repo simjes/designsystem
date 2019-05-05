@@ -21,6 +21,7 @@ const BaseSelectorDownshift = ({
     shouldHideSuggestionsOnBlur,
     value,
     readOnly,
+    ariaInvalid,
     isMultiSelect,
 }) => {
     const onInputValueChange = inputValue => {
@@ -100,6 +101,7 @@ const BaseSelectorDownshift = ({
                         locale={locale}
                         getInputProps={getInputProps}
                         getToggleButtonProps={getToggleButtonProps}
+                        ariaInvalid={ariaInvalid}
                     />
                     <SuggestionListDownshift
                         isOpen={isOpen}
@@ -119,50 +121,34 @@ const BaseSelectorDownshift = ({
 };
 
 BaseSelectorDownshift.propTypes = {
-    //is multiselect?
     suggestions: arrayOf(object).isRequired,
     onInputChange: func.isRequired,
-    // onSelect: func.isRequired,
     locale: Locale.isRequired,
-    // onSuggestionSelect: func.isRequired,
-    onChange: func, // beholde for å ha likt api?
-    // onBlur: func,
-    // onClick: func,
-    // onReset: func,
-    // onFocus: func,
-    // onSuggestionListChange: func, //provides the height of the suggestion list
     placeholder: string,
-    // ariaInvalid: bool,
+    ariaInvalid: bool,
     suggestionsHeightMax: number,
     id: string,
     readOnly: bool,
     isMultiSelect: bool,
 
     onReset: func,
-
-    value: string.isRequired, // shitty prop name
-
-    // new required
     onSuggestionSelect: func.isRequired,
+    
     renderSuggestion: func.isRequired,
     renderNoMatches: func.isRequired,
     renderStatusbar: func,
-
+    
     shouldShowSuggestionsOnFocus: bool,
     shouldHideSuggestionsOnReset: bool,
     shouldHideSuggestionsOnSelect: bool,
     shouldHideSuggestionsOnBlur: bool,
+    value: string.isRequired, // shitty prop name
     // shouldSelectHighlightedOnTab: bool.isRequired, // TODO: dårlig accessibility å allowe dette`?
 };
 
 BaseSelectorDownshift.defaultProps = {
-    // onChange: () => {},
-    // onBlur: () => {},
-    // onClick: () => {},
-    // onFocus: () => {},
     onReset: () => {},
     renderStatusbar: () => {},
-    // onSuggestionListChange: () => {}, // brukt til height adjustmenet - ikke relevant
     readOnly: false,
     ariaInvalid: false,
     isMultiSelect: false,

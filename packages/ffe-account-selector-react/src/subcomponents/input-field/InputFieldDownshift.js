@@ -81,12 +81,13 @@ const InputFieldDownshift = ({
 };
 
 InputFieldDownshift.propTypes = {
-    placeholder: string,
+    value: string.isRequired,
     locale: Locale.isRequired,
+    placeholder: string,
+    ariaInvalid: bool,
+
     getToggleButtonProps: func.isRequired,
     getInputProps: func.isRequired,
-    ariaInvalid: bool,
-    value: string.isRequired,
 
     shouldShowSuggestionsOnFocus: bool.isRequired,
     shouldHideSuggestionsOnReset: bool.isRequired,

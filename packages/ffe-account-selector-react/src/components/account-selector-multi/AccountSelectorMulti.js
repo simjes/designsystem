@@ -152,13 +152,6 @@ class AccountSelectorMulti extends React.Component {
     }
 }
 
-AccountSelectorMulti.defaultProps = {
-    onSelectAll: () => {},
-    selectedAccounts: [],
-    showSelectAllOption: false,
-    isLoading: false,
-};
-
 AccountSelectorMulti.propTypes = {
     /**
      * Array of objects:
@@ -169,7 +162,7 @@ AccountSelectorMulti.propTypes = {
      *      name: string.isRequired,
      *  }
      */
-    accounts: arrayOf(Account),
+    accounts: arrayOf(Account).isRequired,
     className: string,
     id: string.isRequired,
     isLoading: bool,
@@ -193,6 +186,15 @@ AccountSelectorMulti.propTypes = {
     selectedAccounts: arrayOf(Account),
     showSelectAllOption: bool,
     value: string,
+};
+
+AccountSelectorMulti.defaultProps = {
+    onSelectAll: () => {},
+    selectedAccounts: [],
+    showSelectAllOption: false,
+    isLoading: false,
+    noMatches: '',
+    value: '',
 };
 
 export default AccountSelectorMulti;
