@@ -58,11 +58,11 @@ const BaseSelectorDownshift = ({
         }
     };
 
-    const itemToString = (item) => {
+    const itemToString = item => {
         if (isMultiSelect) return '';
 
         return item ? item.name : '';
-    }
+    };
 
     return (
         <Downshift
@@ -112,8 +112,8 @@ const BaseSelectorDownshift = ({
                         selectedItem={selectedItem}
                         renderSuggestion={renderSuggestion}
                         renderNoMatches={renderNoMatches}
+                        renderStatusbar={() => renderStatusbar(closeMenu)}
                     />
-                    {isOpen && renderStatusbar(closeMenu)}
                 </div>
             )}
         </Downshift>
@@ -133,11 +133,11 @@ BaseSelectorDownshift.propTypes = {
 
     onReset: func,
     onSuggestionSelect: func.isRequired,
-    
+
     renderSuggestion: func.isRequired,
     renderNoMatches: func.isRequired,
     renderStatusbar: func,
-    
+
     shouldShowSuggestionsOnFocus: bool,
     shouldHideSuggestionsOnReset: bool,
     shouldHideSuggestionsOnSelect: bool,

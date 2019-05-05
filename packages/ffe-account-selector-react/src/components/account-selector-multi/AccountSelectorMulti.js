@@ -86,7 +86,7 @@ class AccountSelectorMulti extends React.Component {
         );
     }
 
-    renderSuggestionDetails(listHeight, closeMenuCallback) {
+    renderSuggestionDetails(closeMenuCallback) {
         let statusText;
         const { selectedAccounts, isLoading } = this.props;
         if (selectedAccounts.length === 0) {
@@ -98,7 +98,7 @@ class AccountSelectorMulti extends React.Component {
                 txt[this.props.locale].MULTIPLE_ACCOUNTS_SELECTED
             }`;
         }
-        const height = listHeight;
+        
         return (
             !isLoading && (
                 <SuggestionListStatusBar
@@ -107,11 +107,7 @@ class AccountSelectorMulti extends React.Component {
                     labelDoneButton={
                         txt[this.props.locale].DROPDOWN_MULTISELECT_DONE
                     }
-                    style={{
-                        position: 'absolute',
-                        zIndex: 100,
-                        top: height,
-                    }}
+
                 />
             )
         );
@@ -145,7 +141,7 @@ class AccountSelectorMulti extends React.Component {
                     // suggestionFilter={accountFilter} - not used
                     // onSelect={onAccountSelected} - not used
 
-                    renderStatusbar={(closeMenuCallback) => this.renderSuggestionDetails(300, closeMenuCallback)}
+                    renderStatusbar={(closeMenuCallback) => this.renderSuggestionDetails(closeMenuCallback)}
                 />
             </div>
         );
