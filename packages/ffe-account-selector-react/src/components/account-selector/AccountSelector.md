@@ -1,10 +1,11 @@
 Kontovelger for én konto.
 
 ```js
-initialState = { value: '' };
+initialState = { value: '', selectedAccount: null };
 
 <React.Fragment>
-    <Label htmlFor="account-selector-single">Velg konto</Label> {/* Todo: move to selector? */}
+    {/* Todo: move to selector? */}
+    <Label htmlFor="account-selector-single">Velg konto</Label>{' '}
     <AccountSelector
         accounts={[
             {
@@ -42,5 +43,5 @@ initialState = { value: '' };
         value={state.value}
         selectedAccount={state.selectedAccount}
     />
-</React.Fragment>
+</React.Fragment>;
 ```

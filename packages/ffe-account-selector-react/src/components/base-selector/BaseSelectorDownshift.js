@@ -14,12 +14,14 @@ const BaseSelectorDownshift = ({
     suggestions,
     renderSuggestion,
     renderNoMatches,
+    renderStatusbar,
     shouldShowSuggestionsOnFocus,
     shouldHideSuggestionsOnReset,
     shouldHideSuggestionsOnSelect,
     shouldHideSuggestionsOnBlur,
     value,
     readOnly,
+    isMultiSelect,
 }) => {
     const onInputValueChange = inputValue => {
         if (inputValue !== value) {
@@ -55,13 +57,19 @@ const BaseSelectorDownshift = ({
         }
     };
 
+    const itemToString = (item) => {
+        if (isMultiSelect) return '';
+
+        return item ? item.name : '';
+    }
+
     return (
         <Downshift
             onInputValueChange={onInputValueChange}
             inputId={id}
             menuId={'suggestion-list'}
             onSelect={onSuggestionSelect}
-            itemToString={item => (item ? item.name : '')}
+            itemToString={itemToString}
             stateReducer={stateReducer}
         >
             {({
@@ -71,6 +79,7 @@ const BaseSelectorDownshift = ({
                 getMenuProps,
                 isOpen,
                 openMenu,
+                closeMenu,
                 clearSelection,
                 selectedItem,
                 highlightedIndex,
@@ -86,7 +95,7 @@ const BaseSelectorDownshift = ({
                         }
                         clearSelection={clearSelection}
                         onReset={onReset}
-                        readOnly={readOnly}
+                        readOnly={readOnly || isMultiSelect}
                         value={value}
                         locale={locale}
                         getInputProps={getInputProps}
@@ -102,6 +111,7 @@ const BaseSelectorDownshift = ({
                         renderSuggestion={renderSuggestion}
                         renderNoMatches={renderNoMatches}
                     />
+                    {isOpen && renderStatusbar(closeMenu)}
                 </div>
             )}
         </Downshift>
@@ -126,6 +136,7 @@ BaseSelectorDownshift.propTypes = {
     suggestionsHeightMax: number,
     id: string,
     readOnly: bool,
+    isMultiSelect: bool,
 
     onReset: func,
 
@@ -135,6 +146,7 @@ BaseSelectorDownshift.propTypes = {
     onSuggestionSelect: func.isRequired,
     renderSuggestion: func.isRequired,
     renderNoMatches: func.isRequired,
+    renderStatusbar: func,
 
     shouldShowSuggestionsOnFocus: bool,
     shouldHideSuggestionsOnReset: bool,
@@ -149,9 +161,11 @@ BaseSelectorDownshift.defaultProps = {
     // onClick: () => {},
     // onFocus: () => {},
     onReset: () => {},
+    renderStatusbar: () => {},
     // onSuggestionListChange: () => {}, // brukt til height adjustmenet - ikke relevant
     readOnly: false,
     ariaInvalid: false,
+    isMultiSelect: false,
     placeholder: '',
     shouldShowSuggestionsOnFocus: true,
     shouldHideSuggestionsOnReset: true,

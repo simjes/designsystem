@@ -81,18 +81,21 @@ class AccountSelector extends Component {
             onReset,
             value,
             readOnly,
+            noMatches,
         } = this.props;
         return (
             <div
-                className={classNames('ffe-account-selector', className)}
                 id={`${id}-container`}
+                className={classNames('ffe-account-selector', className)}
             >
                 <BaseSelectorDownshift
                     // TODO: memoize?
                     id={id}
                     suggestions={this.filterSuggestions()}
                     renderSuggestion={this.renderSuggestion}
-                    renderNoMatches={this.renderNoMatches}
+                    renderNoMatches={() => (
+                        <AccountNoMatch value={noMatches} locale={locale} />
+                    )}
                     onInputChange={this.onInputChange}
                     onSuggestionSelect={this.onAccountSelect}
                     onReset={onReset}

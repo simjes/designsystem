@@ -2,8 +2,8 @@ Kontovelger med støtte for å velge flere kontoer på én gang.
 
 ```js
 initialState = {
-    selectedAccounts: undefined,
-    value: undefined,
+    selectedAccounts: [],
+    value: '',
 };
 
 

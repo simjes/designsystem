@@ -34,15 +34,12 @@ const SuggestionListDownshift = ({
                     itemCount={suggestions.length}
                     itemSize={itemSize}
                     itemData={{
-                        // forwardProps: props,
                         suggestions,
                         getItemProps,
                         highlightedIndex,
                         selectedItem,
                         renderSuggestion,
                     }}
-                    // ref={props.refList}
-                    //     style={{ overflow: false }}
                 >
                     {SuggestionItemRow}
                 </List>
@@ -73,7 +70,6 @@ SuggestionListDownshift.propTypes = {
     getItemProps: func.isRequired,
     getMenuProps: func.isRequired,
     isLoading: bool,
-    refList: object,
     heightMax: number,
     autoHeight: bool,
     itemSize: number,
