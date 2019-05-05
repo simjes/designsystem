@@ -28,7 +28,7 @@ const SuggestionListDownshift = ({
                 // todo: autoheight // scrollbars?'
                 <List
                     innerElementType={forwardRef((props, ref) => (
-                        <Ul {...props} ref={ref} getMenuProps={getMenuProps} />
+                        <SuggestionList {...props} ref={ref} getMenuProps={getMenuProps} />
                     ))}
                     height={heightMax}
                     itemCount={suggestions.length}
@@ -47,15 +47,15 @@ const SuggestionListDownshift = ({
                     {SuggestionItemRow}
                 </List>
             ) : (
-                <Ul getMenuProps={getMenuProps}>
+                <SuggestionList getMenuProps={getMenuProps}>
                     <li>{renderNoMatches()}</li>
-                </Ul>
+                </SuggestionList>
             )}
         </div>
     );
 };
 
-const Ul = ({ getMenuProps, ...rest }) => (
+const SuggestionList = ({ getMenuProps, ...rest }) => (
     <ul
         {...getMenuProps()}
         {...rest}
