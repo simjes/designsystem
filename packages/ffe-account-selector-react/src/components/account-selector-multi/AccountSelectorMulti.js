@@ -1,4 +1,3 @@
-/* TODO: Needs an aria-role, but I'm not sure which is correct */
 /* eslint jsx-a11y/no-static-element-interactions:0 */
 import { Checkbox } from '@sb1/ffe-form-react';
 import classNames from 'classnames';
@@ -15,7 +14,11 @@ import { SuggestionListStatusBar } from '../../subcomponents/suggestion';
 import { Account, Locale } from '../../util/types';
 import BaseSelectorDownshift from '../base-selector/BaseSelectorDownshift';
 
-const allAccountsElement = { id: 'all-accounts', accountNumber: '' };
+const allAccountsElement = {
+    id: 'all-accounts',
+    accountNumber: '',
+    height: 37,
+};
 
 const renderSelectAll = (allSelected, locale) => (
     <div className="ffe-account-suggestion__account--multi ffe-account-suggestion__select-all">
@@ -38,9 +41,6 @@ class AccountSelectorMulti extends React.Component {
     constructor(props) {
         super(props);
         autoBind(this);
-        this.state = {
-            suggestionListHeight: 0,
-        };
     }
 
     filterSuggestions(value) {
@@ -98,7 +98,7 @@ class AccountSelectorMulti extends React.Component {
                 txt[this.props.locale].MULTIPLE_ACCOUNTS_SELECTED
             }`;
         }
-        
+
         return (
             !isLoading && (
                 <SuggestionListStatusBar
@@ -107,7 +107,6 @@ class AccountSelectorMulti extends React.Component {
                     labelDoneButton={
                         txt[this.props.locale].DROPDOWN_MULTISELECT_DONE
                     }
-
                 />
             )
         );
@@ -141,7 +140,9 @@ class AccountSelectorMulti extends React.Component {
                     // suggestionFilter={accountFilter} - not used
                     // onSelect={onAccountSelected} - not used
 
-                    renderStatusbar={(closeMenuCallback) => this.renderSuggestionDetails(closeMenuCallback)}
+                    renderStatusbar={closeMenuCallback =>
+                        this.renderSuggestionDetails(closeMenuCallback)
+                    }
                 />
             </div>
         );
@@ -187,7 +188,7 @@ AccountSelectorMulti.propTypes = {
 AccountSelectorMulti.defaultProps = {
     onSelectAll: () => {},
     selectedAccounts: [],
-    showSelectAllOption: false,
+    showSelectAllOption: true,
     isLoading: false,
     noMatches: '',
     value: '',

@@ -2,7 +2,7 @@ import Spinner from '@sb1/ffe-spinner-react';
 import { arrayOf, bool, func, number, object } from 'prop-types';
 import React, { forwardRef } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
-import { FixedSizeList as List } from 'react-window';
+import { VariableSizeList as List } from 'react-window';
 import SuggestionItemRow from './SuggestionItemDownshift';
 
 const SuggestionListDownshift = ({
@@ -17,10 +17,15 @@ const SuggestionListDownshift = ({
     isLoading,
     heightMax,
     autoHeight,
-    itemSize,
+    defaultItemSize,
 }) => {
     const listRef = React.createRef();
-    const height = Math.min(heightMax, itemSize * suggestions.length + 2);
+    const totalItemsHeight = suggestions.reduce(
+        (sum, suggestion) => sum + (suggestion.height || defaultItemSize),
+        0,
+    );
+
+    const listHeight = Math.min(heightMax, totalItemsHeight);
 
     const handleScroll = ({ target }) => {
         const { scrollTop } = target;
@@ -33,7 +38,6 @@ const SuggestionListDownshift = ({
             className="ffe-base-selector__suggestion-container"
             style={{
                 display: isOpen ? 'block' : 'none',
-                height,
             }}
         >
             {isLoading ? (
@@ -53,9 +57,11 @@ const SuggestionListDownshift = ({
                                 getMenuProps={getMenuProps}
                             />
                         ))}
-                        height={height}
+                        height={listHeight}
                         itemCount={suggestions.length}
-                        itemSize={itemSize}
+                        itemSize={index =>
+                            suggestions[index].height || defaultItemSize
+                        }
                         itemData={{
                             suggestions,
                             getItemProps,
@@ -93,7 +99,7 @@ SuggestionListDownshift.propTypes = {
     isLoading: bool,
     heightMax: number,
     autoHeight: bool,
-    itemSize: number,
+    defaultItemSize: number,
 
     getMenuProps: func.isRequired,
     getItemProps: func.isRequired,
@@ -107,7 +113,7 @@ SuggestionListDownshift.defaultProps = {
     isLoading: false,
     heightMax: 300,
     autoHeight: true,
-    itemSize: 55,
+    defaultItemSize: 55,
 
     renderNoMatches: () => {},
     renderStatusbar: () => {},
