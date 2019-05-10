@@ -40,7 +40,11 @@ StatusBar.propTypes = {
     onDone: func.isRequired,
     renderSelectionStatus: func.isRequired,
     labelDoneButton: string.isRequired,
-    style: object.isRequired,
+    style: object,
+};
+
+StatusBar.defaultProps = {
+    style: {},
 };
 
 export default StatusBar;

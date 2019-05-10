@@ -1,20 +1,15 @@
-/* TODO: Needs an aria-role, but I'm not sure which is correct */
-/* eslint jsx-a11y/no-static-element-interactions:0 */
-import React from 'react';
-import { func, string, arrayOf, bool } from 'prop-types';
-import autoBind from 'react-auto-bind';
-
 import { Checkbox } from '@sb1/ffe-form-react';
-
-import BaseSelector from '../base-selector';
+import { arrayOf, bool, func, string } from 'prop-types';
+import React from 'react';
+import { accountFilter } from '../../filter/filters';
+import txt from '../../i18n/i18n';
 import {
     AccountNoMatch,
     AccountSuggestionMulti,
 } from '../../subcomponents/account';
-import { Account, Locale, KeyCodes } from '../../util/types';
-import { accountFilter } from '../../filter/filters';
 import { SuggestionListStatusBar } from '../../subcomponents/suggestion';
-import txt from '../../i18n/i18n';
+import { Account, Locale } from '../../util/types';
+import BaseSelector from '../base-selector';
 
 const allAccountsElement = { id: 'all-accounts', accountNumber: '' };
 
@@ -35,16 +30,9 @@ const renderSelectAll = (allSelected, locale) => (
     </div>
 );
 
+// TODO: func comp
 class AccountSelectorMulti extends React.Component {
-    constructor(props) {
-        super(props);
-        autoBind(this);
-        this.state = {
-            suggestionListHeight: 0,
-        };
-    }
-
-    filterSuggestions(value) {
+    filterSuggestions = value => {
         const { accounts, showSelectAllOption } = this.props;
         if (showSelectAllOption && !value) {
             return [
@@ -53,9 +41,9 @@ class AccountSelectorMulti extends React.Component {
             ];
         }
         return accounts.filter(accountFilter(value));
-    }
+    };
 
-    onSuggestionSelect(suggestion) {
+    onSuggestionSelect = suggestion => {
         const { onAccountSelected, selectedAccounts, accounts } = this.props;
         if (suggestion) {
             if (suggestion.id === allAccountsElement.id) {
@@ -65,9 +53,9 @@ class AccountSelectorMulti extends React.Component {
             }
             onAccountSelected(suggestion);
         }
-    }
+    };
 
-    renderSuggestion(account) {
+    renderSuggestion = account => {
         const { locale, selectedAccounts, accounts } = this.props;
         const isSelected = selectedAccounts.filter(
             a => a.accountNumber === account.accountNumber,
@@ -85,93 +73,69 @@ class AccountSelectorMulti extends React.Component {
             selectedAccounts.length === accounts.length,
             locale,
         );
-    }
+    };
 
-    onBlur() {
-        if (!this.shouldShowSuggestions) {
-            this.props.onBlur();
+    renderNoMatches = () => (
+        <AccountNoMatch
+            value={this.props.noMatches}
+            locale={this.props.locale}
+        />
+    );
+
+    renderSuggestionDetails = closeMenuCallback => {
+        let statusText;
+        const { selectedAccounts, isLoading } = this.props;
+        if (selectedAccounts.length === 0) {
+            statusText = txt[this.props.locale].NO_ACCOUNTS_SELECTED;
+        } else if (selectedAccounts.length === 1) {
+            statusText = txt[this.props.locale].ONE_ACCOUNT_SELECTED;
+        } else {
+            statusText = `${selectedAccounts.length} ${
+                txt[this.props.locale].MULTIPLE_ACCOUNTS_SELECTED
+            }`;
         }
-        this.baseRef.showOrHideSuggestions(this.shouldShowSuggestions);
-        this.shouldShowSuggestions = false;
-    }
 
-    onDone() {
-        this.baseRef.showOrHideSuggestions(false);
-        this.props.onBlur();
-    }
-
-    renderSuggestionDetails(listHeight) {
-        if (this.baseRef) {
-            let statusText;
-            const { selectedAccounts, isLoading } = this.props;
-            if (selectedAccounts.length === 0) {
-                statusText = txt[this.props.locale].NO_ACCOUNTS_SELECTED;
-            } else if (selectedAccounts.length === 1) {
-                statusText = txt[this.props.locale].ONE_ACCOUNT_SELECTED;
-            } else {
-                statusText = `${selectedAccounts.length} ${
-                    txt[this.props.locale].MULTIPLE_ACCOUNTS_SELECTED
-                }`;
-            }
-            const height = listHeight + this.baseRef.getInputHeight();
-            return (
-                !isLoading && (
-                    <SuggestionListStatusBar
-                        renderSelectionStatus={() => statusText}
-                        onDone={this.onDone}
-                        labelDoneButton={
-                            txt[this.props.locale].DROPDOWN_MULTISELECT_DONE
-                        }
-                        style={{
-                            position: 'absolute',
-                            zIndex: 100,
-                            top: height,
-                        }}
-                    />
-                )
-            );
-        }
-        return null;
-    }
-
-    onKeyDown(event) {
-        if (event.which === KeyCodes.TAB) {
-            this.shouldShowSuggestions = !event.shiftKey;
-        }
-    }
+        return (
+            !isLoading && (
+                <SuggestionListStatusBar
+                    renderSelectionStatus={() => statusText}
+                    onDone={closeMenuCallback}
+                    labelDoneButton={
+                        txt[this.props.locale].DROPDOWN_MULTISELECT_DONE
+                    }
+                />
+            )
+        );
+    };
 
     render() {
-        const { noMatches, onAccountSelected, locale, value } = this.props;
+        const { label, id, locale, value } = this.props;
         return (
-            <div className="ffe-account-selector" onKeyDown={this.onKeyDown}>
+            <div className="ffe-account-selector">
                 <BaseSelector
+                    id={id}
+                    label={label}
+                    suggestions={this.filterSuggestions(value)}
                     renderSuggestion={account => this.renderSuggestion(account)}
-                    renderNoMatches={() => (
-                        <AccountNoMatch value={noMatches} locale={locale} />
-                    )}
-                    suggestionDetails={this.renderSuggestionDetails()}
+                    renderNoMatches={this.renderNoMatches}
+                    onInputChange={() => {}} //- not used in multi selector - but maybe it should?
+                    onSuggestionSelect={this.onSuggestionSelect}
+                    // onReset={onReset} - not used, should it?
+                    locale={locale}
+                    value={value} //- not used, should it?
                     shouldHideSuggestionsOnSelect={false}
-                    shouldSelectHighlightedOnTab={false}
+                    // shouldSelectHighlightedOnTab={false} - do not want at all
                     shouldHideSuggestionsOnBlur={false}
                     shouldHideSuggestionsOnReset={true}
-                    onSuggestionSelect={this.onSuggestionSelect}
-                    suggestionFilter={accountFilter}
-                    onSelect={onAccountSelected}
-                    locale={locale}
-                    onSuggestionListChange={height => {
-                        this.setState({ suggestionListHeight: height });
-                    }}
-                    suggestions={this.filterSuggestions(value)}
-                    ref={element => {
-                        this.baseRef = element;
-                    }}
-                    {...this.props}
-                    onBlur={e => this.onBlur(e)}
+                    isMultiSelect={true}
+                    // suggestionDetails={this.renderSuggestionDetails()} // TODO: not used
+                    // suggestionFilter={accountFilter} - not used
+                    // onSelect={onAccountSelected} - not used
+
+                    renderStatusbar={closeMenuCallback =>
+                        this.renderSuggestionDetails(closeMenuCallback)
+                    }
                 />
-                {this.state.suggestionListHeight > 0 &&
-                    this.renderSuggestionDetails(
-                        this.state.suggestionListHeight,
-                    )}
             </div>
         );
     }
@@ -196,6 +160,7 @@ AccountSelectorMulti.propTypes = {
      */
     accounts: arrayOf(Account),
     id: string.isRequired,
+    label: string.isRequired,
     isLoading: bool,
     /** 'nb', 'nn', or 'en' */
     locale: Locale.isRequired,
@@ -203,7 +168,6 @@ AccountSelectorMulti.propTypes = {
     noMatches: string,
     /** Called when an account is clicked */
     onAccountSelected: func.isRequired,
-    onBlur: func.isRequired,
     onSelectAll: func,
     /**
      * Array of objects:

@@ -1,288 +1,174 @@
-import React, { Component } from 'react';
-import { func, bool, number, string, arrayOf, object } from 'prop-types';
-import autoBind from 'react-auto-bind';
-
+import Downshift from 'downshift';
+import { arrayOf, bool, func, object, string } from 'prop-types';
+import React from 'react';
 import Input from '../../subcomponents/input-field';
 import { SuggestionListContainer } from '../../subcomponents/suggestion';
-import { KeyCodes, Locale } from '../../util/types';
+import { Locale } from '../../util/types';
+import { Label } from '@sb1/ffe-form-react';
 
-class BaseSelector extends Component {
-    constructor(props) {
-        super(props);
-        autoBind(this);
-
-        this.state = {
-            showSuggestions: false,
-            highlightedSuggestionIndex: -1,
-            suggestionListId: 'suggestion-list',
-        };
-    }
-
-    _onSuggestionListChange() {
-        setTimeout(() => {
-            this.props.onSuggestionListChange(this.getSuggestionListHeight());
-        });
-    }
-
-    getSuggestionListHeight() {
-        if (this.suggestionList) {
-            return this.suggestionList.scrollbars.getClientHeight();
+const BaseSelector = ({
+    id,
+    locale,
+    label,
+    onReset,
+    onSuggestionSelect,
+    onInputChange,
+    suggestions,
+    renderSuggestion,
+    renderNoMatches,
+    renderStatusbar,
+    shouldShowSuggestionsOnFocus,
+    shouldHideSuggestionsOnReset,
+    shouldHideSuggestionsOnSelect,
+    shouldHideSuggestionsOnBlur,
+    value,
+    readOnly,
+    ariaInvalid,
+    isMultiSelect,
+    placeholder,
+    isLoading,
+}) => {
+    const onInputValueChange = inputValue => {
+        if (inputValue !== value) {
+            onInputChange(inputValue);
         }
-        return 0;
-    }
+    };
 
-    setFocus() {
-        this.input.focus();
-    }
+    const stateReducer = (state, changes) => {
+        switch (changes.type) {
+            case Downshift.stateChangeTypes.keyDownEscape:
+                return {
+                    ...changes,
+                    isOpen: !shouldHideSuggestionsOnReset,
+                };
 
-    getInputHeight() {
-        if (this.input) {
-            return this.input.getBoundingClientRect().height;
+            case Downshift.stateChangeTypes.clickItem:
+            case Downshift.stateChangeTypes.keyDownEnter:
+                return {
+                    ...changes,
+                    isOpen: !shouldHideSuggestionsOnSelect,
+                };
+
+            case Downshift.stateChangeTypes.blurInput:
+            case Downshift.stateChangeTypes.blurButton:
+            case Downshift.stateChangeTypes.mouseUp:
+                return {
+                    ...changes,
+                    isOpen: !shouldHideSuggestionsOnBlur,
+                };
+
+            default:
+                return changes;
         }
-        return 0;
-    }
+    };
 
-    onInputChange(val) {
-        if (val !== this.props.value) {
-            this.setState(
-                { showSuggestions: true, highlightedSuggestionIndex: -1 },
-                () => {
-                    this.props.onChange(val);
-                    this._onSuggestionListChange();
-                },
-            );
-        }
-    }
+    const itemToString = item => {
+        if (isMultiSelect) return '';
 
-    onFocus() {
-        const { shouldShowSuggestionsOnFocus, onFocus } = this.props;
-        this.showOrHideSuggestions(shouldShowSuggestionsOnFocus, onFocus);
-    }
+        return item ? item.name : '';
+    };
 
-    onBlur() {
-        this.showOrHideSuggestions(false, this.props.onBlur);
-    }
+    return (
+        <Downshift
+            onInputValueChange={onInputValueChange}
+            inputId={id}
+            menuId={'suggestion-list'}
+            labelId={`${id}-label`}
+            onSelect={onSuggestionSelect}
+            itemToString={itemToString}
+            stateReducer={stateReducer}
+        >
+            {({
+                getInputProps,
+                getToggleButtonProps,
+                getItemProps,
+                getMenuProps,
+                getLabelProps,
+                isOpen,
+                openMenu,
+                closeMenu,
+                clearSelection,
+                highlightedIndex,
+            }) => (
+                <div className="ffe-base-selector">
+                    <Label {...getLabelProps()}>{label}</Label>
+                    <div className="ffe-input-group">
+                        <Input
+                            readOnly={readOnly || isMultiSelect}
+                            ariaInvalid={ariaInvalid}
+                            openMenu={openMenu}
+                            shouldShowSuggestionsOnFocus={
+                                shouldShowSuggestionsOnFocus
+                            }
+                            shouldHideSuggestionsOnReset={
+                                shouldHideSuggestionsOnReset
+                            }
+                            clearSelection={clearSelection}
+                            onReset={onReset}
+                            value={value}
+                            locale={locale}
+                            getInputProps={getInputProps}
+                            getToggleButtonProps={getToggleButtonProps}
+                            placeholder={placeholder}
+                        />
+                        <SuggestionListContainer
+                            isOpen={isOpen}
+                            suggestions={suggestions}
+                            highlightedIndex={highlightedIndex}
+                            renderSuggestion={renderSuggestion}
+                            renderNoMatches={renderNoMatches}
+                            isLoading={isLoading}
+                            getMenuProps={getMenuProps}
+                            getItemProps={getItemProps}
+                        />
 
-    onClick() {
-        const { onClick } = this.props;
-        this.showOrHideSuggestions(true, onClick);
-    }
-
-    onInputReset() {
-        const shouldShowSuggestions = !this.props.shouldHideSuggestionsOnReset;
-        this.showOrHideSuggestions(shouldShowSuggestions, this.props.onReset);
-        setTimeout(this.setFocus);
-    }
-
-    showOrHideSuggestions(show, cb = () => {}) {
-        const nextState = show
-            ? { showSuggestions: show }
-            : { showSuggestions: false, highlightedSuggestionIndex: -1 };
-        this.setState(nextState, cb);
-        this._onSuggestionListChange();
-    }
-
-    setNextHighlighted() {
-        const { highlightedSuggestionIndex } = this.state;
-        const { suggestions } = this.props;
-        const nextHighlightedSuggestionIndex =
-            highlightedSuggestionIndex === suggestions.length - 1
-                ? 0
-                : highlightedSuggestionIndex + 1;
-        this.setState({
-            highlightedSuggestionIndex: nextHighlightedSuggestionIndex,
-        });
-
-        if (nextHighlightedSuggestionIndex === 0) {
-            this.suggestionList.setScrollPosStart();
-            return;
-        }
-        this.suggestionList.setScrollPosNext();
-    }
-
-    setPreviousHighlighted() {
-        const { highlightedSuggestionIndex } = this.state;
-        const { suggestions } = this.props;
-        const nextHighlightedSuggestionIndex =
-            highlightedSuggestionIndex === 0
-                ? suggestions.length - 1
-                : highlightedSuggestionIndex - 1;
-        this.setState({
-            highlightedSuggestionIndex: nextHighlightedSuggestionIndex,
-        });
-
-        if (nextHighlightedSuggestionIndex === suggestions.length - 1) {
-            this.suggestionList.setScrollPosEnd();
-            return;
-        }
-        this.suggestionList.setScrollPosPrevious();
-    }
-
-    setFirstHighlighted() {
-        this.setState({ highlightedSuggestionIndex: 0 });
-        this.suggestionList.setScrollPosStart();
-    }
-
-    setLastHighlighted() {
-        this.setState({
-            highlightedSuggestionIndex: this.props.suggestions.length - 1,
-        });
-        this.suggestionList.setScrollPosEnd();
-    }
-
-    onInputKeyDown(event) {
-        const { showSuggestions, highlightedSuggestionIndex } = this.state;
-        const {
-            shouldSelectHighlightedOnTab,
-            suggestions,
-            onSuggestionSelect,
-        } = this.props;
-        const { which, altKey } = event;
-        switch (which) {
-            case KeyCodes.DOWN:
-                if (altKey && !showSuggestions) {
-                    this.showOrHideSuggestions(true);
-                    break;
-                }
-                if (showSuggestions) {
-                    this.setNextHighlighted();
-                    event.preventDefault();
-                }
-                break;
-            case KeyCodes.UP:
-                if (altKey && showSuggestions) {
-                    this.showOrHideSuggestions(false);
-                    break;
-                }
-                if (showSuggestions) {
-                    this.setPreviousHighlighted();
-                    event.preventDefault();
-                }
-                break;
-            case KeyCodes.ESC:
-                this.onInputReset();
-                break;
-            case KeyCodes.HOME:
-                if (showSuggestions && suggestions.length !== 0) {
-                    this.setFirstHighlighted();
-                    event.preventDefault();
-                }
-                break;
-            case KeyCodes.END:
-                if (showSuggestions && suggestions.length !== 0) {
-                    this.setLastHighlighted();
-                    event.preventDefault();
-                }
-                break;
-            case KeyCodes.ENTER:
-                if (showSuggestions) {
-                    event.preventDefault();
-                }
-                onSuggestionSelect(suggestions[highlightedSuggestionIndex]);
-                break;
-            case KeyCodes.TAB:
-                if (showSuggestions && shouldSelectHighlightedOnTab) {
-                    onSuggestionSelect(suggestions[highlightedSuggestionIndex]);
-                }
-        }
-    }
-
-    render() {
-        const {
-            value,
-            placeholder,
-            suggestionsHeightMax,
-            ariaInvalid,
-            id,
-            name,
-            suggestions,
-            onSuggestionSelect,
-            readOnly,
-            locale,
-        } = this.props;
-        const {
-            showSuggestions,
-            highlightedSuggestionIndex,
-            suggestionListId,
-        } = this.state;
-        return (
-            <div className="base-selector ffe-input-group">
-                <Input
-                    inputFieldRef={input => {
-                        this.input = input;
-                    }}
-                    value={value}
-                    onChange={this.onInputChange}
-                    onReset={this.onInputReset}
-                    onKeyDown={this.onInputKeyDown}
-                    isSuggestionsShowing={showSuggestions}
-                    placeholder={placeholder}
-                    onBlur={this.onBlur}
-                    onFocus={this.onFocus}
-                    onClick={this.onClick}
-                    highlightedIndex={highlightedSuggestionIndex}
-                    suggestionListId={suggestionListId}
-                    ariaInvalid={ariaInvalid}
-                    id={id}
-                    name={name}
-                    readOnly={readOnly}
-                    locale={locale}
-                />
-                {showSuggestions && (
-                    <SuggestionListContainer
-                        {...this.props}
-                        ref={suggestionList => {
-                            this.suggestionList = suggestionList;
-                        }}
-                        highlightedIndex={highlightedSuggestionIndex}
-                        suggestions={suggestions}
-                        heightMax={suggestionsHeightMax}
-                        onSelect={onSuggestionSelect}
-                        id={suggestionListId}
-                    />
-                )}
-            </div>
-        );
-    }
-}
+                        {isOpen && renderStatusbar(closeMenu)}
+                    </div>
+                </div>
+            )}
+        </Downshift>
+    );
+};
 
 BaseSelector.propTypes = {
     suggestions: arrayOf(object).isRequired,
-    suggestionFilter: func.isRequired,
-    onSelect: func.isRequired,
     value: string.isRequired,
+    onInputChange: func.isRequired,
     locale: Locale.isRequired,
-    shouldHideSuggestionsOnSelect: bool.isRequired,
-    shouldSelectHighlightedOnTab: bool.isRequired,
-    shouldHideSuggestionsOnBlur: bool.isRequired,
-    shouldHideSuggestionsOnReset: bool.isRequired,
-    shouldShowSuggestionsOnFocus: bool,
-    onSuggestionSelect: func.isRequired,
-    onChange: func,
-    onBlur: func,
-    onClick: func,
-    onReset: func,
-    onFocus: func,
-    onSuggestionListChange: func, //provides the height of the suggestion list
     placeholder: string,
-    ariaInvalid: bool,
-    suggestionsHeightMax: number,
-    id: string,
-    name: string,
+    ariaInvalid: bool, // TODO: can I use aria-invalid?
+    id: string.isRequired,
+    label: string.isRequired,
     readOnly: bool,
+    isMultiSelect: bool,
+    isLoading: bool,
+
+    onReset: func,
+    onSuggestionSelect: func.isRequired,
+
+    renderSuggestion: func.isRequired,
+    renderNoMatches: func.isRequired,
+    renderStatusbar: func,
+
+    shouldShowSuggestionsOnFocus: bool,
+    shouldHideSuggestionsOnReset: bool,
+    shouldHideSuggestionsOnSelect: bool,
+    shouldHideSuggestionsOnBlur: bool,
+    // shouldSelectHighlightedOnTab: bool.isRequired, // TODO: dårlig accessibility å allowe dette`?
 };
 
 BaseSelector.defaultProps = {
-    onChange: () => {},
-    onBlur: () => {},
-    onClick: () => {},
-    onFocus: () => {},
     onReset: () => {},
-    onSuggestionListChange: () => {},
+    renderStatusbar: () => {},
+    readOnly: false,
     ariaInvalid: false,
+    isMultiSelect: false,
+    isLoading: false,
     placeholder: '',
-    value: '',
     shouldShowSuggestionsOnFocus: true,
+    shouldHideSuggestionsOnReset: true,
+    shouldHideSuggestionsOnSelect: true,
+    shouldHideSuggestionsOnBlur: true,
 };
 
 export default BaseSelector;

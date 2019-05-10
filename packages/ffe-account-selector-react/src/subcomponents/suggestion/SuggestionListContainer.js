@@ -1,76 +1,44 @@
 /* TODO: Needs an aria-role, but I'm not sure which is correct */
 /* eslint jsx-a11y/no-static-element-interactions:0 */
-import React from 'react';
 import { bool, number } from 'prop-types';
+import React from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
-
 import SuggestionList from './SuggestionList';
 
-class SuggestionListContainer extends React.Component {
-    constructor(props) {
-        super(props);
-        this.refHighlightedSuggestion = this.refHighlightedSuggestion.bind(
-            this,
-        );
-    }
+const SuggestionListContainer = ({
+    heightMax,
+    autoHeight,
+    isOpen,
+    ...props
+}) => {
+    // const handleScroll = ({ target }) => {
+    //     const { scrollTop } = target;
 
-    refHighlightedSuggestion(suggestionEl) {
-        this.highlightedSuggestionHeight = suggestionEl.clientHeight;
-    }
+    //     listRef.current.scrollTo(scrollTop);
+    // };
 
-    _setScrollPos(pos) {
-        this.scrollbars.scrollTop(pos);
-    }
+    // TODO: scroll when nav outside window
 
-    setScrollPosStart() {
-        this._setScrollPos(0);
-    }
-
-    setScrollPosEnd() {
-        this._setScrollPos(this.scrollbars.getScrollHeight());
-    }
-
-    setScrollPosNext() {
-        const { highlightedIndex } = this.props;
-        this._setScrollPos(highlightedIndex * this.highlightedSuggestionHeight);
-    }
-
-    setScrollPosPrevious() {
-        const { highlightedIndex } = this.props;
-        this._setScrollPos(
-            highlightedIndex * this.highlightedSuggestionHeight -
-                this.highlightedSuggestionHeight,
-        );
-    }
-
-    render() {
-        const { heightMax, autoHeight } = this.props;
-        return (
-            <div
-                className="ffe-base-selector__suggestion-container"
-                onKeyDown={this.onKeyDown}
+    return (
+        <div
+            className="ffe-base-selector__suggestion-container"
+            style={{
+                display: isOpen ? 'block' : 'none',
+            }}
+        >
+            <Scrollbars
+                autoHeight={autoHeight}
+                autoHeightMax={heightMax}
+                // onScroll={handleScroll}
             >
-                <Scrollbars
-                    autoHeight={autoHeight}
-                    autoHeightMax={heightMax}
-                    ref={scrollbars => {
-                        if (scrollbars) {
-                            this.scrollbars = scrollbars;
-                        }
-                    }}
-                >
-                    <SuggestionList
-                        refHighlightedSuggestion={this.refHighlightedSuggestion}
-                        {...this.props}
-                    />
-                </Scrollbars>
-            </div>
-        );
-    }
-}
+                <SuggestionList {...props} />
+            </Scrollbars>
+        </div>
+    );
+};
 
 SuggestionListContainer.propTypes = {
-    highlightedIndex: number.isRequired,
+    isOpen: bool.isRequired,
     heightMax: number,
     autoHeight: bool,
 };

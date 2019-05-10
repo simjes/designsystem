@@ -1,102 +1,85 @@
-import React, { Component } from 'react';
-import autoBind from 'react-auto-bind';
-import { func, string, arrayOf, bool } from 'prop-types';
 import classNames from 'classnames';
-
-import BaseSelector from '../base-selector';
-import {
-    AccountDetails,
-    AccountNoMatch,
-    AccountSuggestion,
-} from '../../subcomponents/account';
-import { Account, Locale } from '../../util/types';
+import { arrayOf, bool, func, string } from 'prop-types';
+import React, { Component } from 'react';
 import { createAccountFilter } from '../../filter/filters';
+import { AccountDetails, AccountNoMatch, AccountSuggestion } from '../../subcomponents/account';
+import { Account, Locale } from '../../util/types';
+import BaseSelector from '../base-selector';
 
 class AccountSelector extends Component {
     constructor(props) {
         super(props);
-        autoBind(this);
 
-        this.baseSelector = null;
-
-        this.enableFilter = false;
+        this.enableFilter = false; // TODO: should be state?
     }
 
-    renderSuggestion(account) {
-        return (
-            <AccountSuggestion
-                account={account}
-                locale={this.props.locale}
-                showBalance={this.props.showBalance}
-            />
-        );
-    }
+    renderSuggestion = account => (
+        <AccountSuggestion
+            account={account}
+            locale={this.props.locale}
+            showBalance={this.props.showBalance}
+        />
+    );
 
-    assignBaseSelectorRef(baseSelector) {
-        this.baseSelector = baseSelector;
-    }
+    renderNoMatches = () => (
+        <AccountNoMatch
+            value={this.props.noMatches}
+            locale={this.props.locale}
+        />
+    );
 
-    renderNoMatches() {
-        return (
-            <AccountNoMatch
-                value={this.props.noMatches}
-                locale={this.props.locale}
-            />
-        );
-    }
+    onAccountSelect = account => {
+        if (account) {
+            this.enableFilter = false;
+            this.props.onAccountSelected(account);
+        }
+    };
 
-    onAccountSelect(account) {
-        this.enableFilter = false;
-        this.props.onAccountSelected(account);
-    }
-
-    onInputChange(value) {
+    onInputChange = value => {
         this.enableFilter = true;
         this.props.onChange(value);
-    }
+    };
 
-    onSuggestionSelect(suggestion) {
-        if (suggestion) {
-            this.baseSelector.showOrHideSuggestions(false, () =>
-                this.onAccountSelect(suggestion),
-            );
-        }
-    }
-
-    filterSuggestions() {
+    filterSuggestions = () => {
         const { value, accounts } = this.props;
         const suggFilt = createAccountFilter(this.enableFilter);
         return accounts.filter(suggFilt(value));
-    }
+    };
 
     render() {
         const {
-            className,
             id,
+            label,
+            className,
             locale,
             selectedAccount,
             showBalance,
+            onReset,
+            value,
+            readOnly,
         } = this.props;
         return (
             <div
-                className={classNames('ffe-account-selector', className)}
                 id={`${id}-container`}
+                className={classNames('ffe-account-selector', className)}
             >
                 <BaseSelector
-                    ref={this.assignBaseSelectorRef}
+                    id={id}
+                    label={label}
+                    suggestions={this.filterSuggestions()}
                     renderSuggestion={this.renderSuggestion}
                     renderNoMatches={this.renderNoMatches}
+                    renderLabel={this.renderLabel}
+                    onInputChange={this.onInputChange}
+                    onSuggestionSelect={this.onAccountSelect}
+                    onReset={onReset}
+                    locale={locale}
+                    value={value}
                     shouldHideSuggestionsOnSelect={true}
-                    shouldSelectHighlightedOnTab={true}
+                    //shouldSelectHighlightedOnTab={true} // Todo: meh
                     shouldHideSuggestionsOnBlur={true}
                     shouldHideSuggestionsOnReset={false}
-                    onSuggestionSelect={this.onSuggestionSelect}
-                    suggestionFilter={createAccountFilter(this.enableFilter)}
-                    suggestions={this.filterSuggestions()}
-                    {...this.props}
-                    onSelect={this.onAccountSelect}
-                    onChange={this.onInputChange}
-                    locale={locale}
+                    readOnly={readOnly}
                 />
                 {selectedAccount && (
                     <AccountDetails
@@ -120,9 +103,10 @@ AccountSelector.propTypes = {
      *      name: string.isRequired,
      *  }
      */
-    accounts: arrayOf(Account),
+    accounts: arrayOf(Account).isRequired,
     className: string,
     id: string.isRequired,
+    label: string.isRequired,
     /** 'nb', 'nn', or 'en' */
     locale: Locale.isRequired,
     /** Overrides default string for all locales. */
@@ -132,6 +116,8 @@ AccountSelector.propTypes = {
     /** Called on changes in the input field */
     onChange: func.isRequired,
     selectedAccount: Account,
+    /* Called when pressing escape in the input field */
+    onReset: func,
     /** Default true. */
     showBalance: bool,
     value: string.isRequired,
@@ -140,6 +126,14 @@ AccountSelector.propTypes = {
      * where the textual input and keyboard can be distracting.
      */
     readOnly: bool,
+};
+
+AccountSelector.defaultProps = {
+    className: '',
+    noMatches: '',
+    showBalance: true,
+    readOnly: false,
+    onReset: () => {},
 };
 
 export default AccountSelector;

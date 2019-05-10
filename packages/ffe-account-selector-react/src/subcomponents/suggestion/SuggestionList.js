@@ -1,54 +1,55 @@
-import React from 'react';
-import { func, arrayOf, number, string, object, bool } from 'prop-types';
 import Spinner from '@sb1/ffe-spinner-react';
-
+import { arrayOf, bool, func, number, object } from 'prop-types';
+import React from 'react';
 import SuggestionItem from './SuggestionItem';
 
-export default function SuggestionList(props) {
-    const {
-        suggestions,
-        highlightedIndex,
-        renderSuggestion,
-        renderNoMatches,
-        id,
-        isLoading,
-    } = props;
-    return isLoading ? (
+const SuggestionList = ({
+    suggestions,
+    highlightedIndex,
+    renderSuggestion,
+    renderNoMatches,
+    isLoading,
+    getMenuProps,
+    getItemProps,
+}) =>
+    isLoading ? (
         <Spinner center={true} large={true} />
     ) : (
         <ul
+            {...getMenuProps()}
             className="ffe-base-selector__suggestion-container-list"
-            role="listbox"
-            id={id}
         >
             {suggestions.length > 0 ? (
                 suggestions.map((item, index) => (
                     <SuggestionItem
-                        {...props}
                         key={index}
                         item={item}
-                        id={`suggestion-item-${index}`}
                         isHighlighted={index === highlightedIndex}
                         render={renderSuggestion}
+                        getItemProps={getItemProps}
+                        index={index}
                     />
                 ))
             ) : (
-                <li>{renderNoMatches()}</li>
+                <li {...getItemProps()}>{renderNoMatches()}</li>
             )}
         </ul>
     );
-}
 
 SuggestionList.propTypes = {
     suggestions: arrayOf(object).isRequired,
-    highlightedIndex: number.isRequired,
+    highlightedIndex: number,
     renderSuggestion: func.isRequired,
     renderNoMatches: func,
-    id: string.isRequired,
     isLoading: bool,
+    getMenuProps: func.isRequired,
+    getItemProps: func.isRequired,
 };
 
 SuggestionList.defaultProps = {
     renderNoMatches: () => {},
     isLoading: false,
+    highlightedIndex: undefined,
 };
+
+export default SuggestionList;

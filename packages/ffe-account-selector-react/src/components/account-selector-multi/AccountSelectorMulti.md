@@ -2,13 +2,11 @@ Kontovelger med støtte for å velge flere kontoer på én gang.
 
 ```js
 initialState = {
-    selectedAccounts: undefined,
-    value: undefined,
+    selectedAccounts: [],
+    value: '',
 };
 
-
 <React.Fragment>
-    <Label htmlFor="account-selector-multi">Velg konto</Label>
     <AccountSelectorMulti
         accounts={[
             {
@@ -25,14 +23,16 @@ initialState = {
             },
         ]}
         id="account-selector-multi"
+        label="Velg konto"
         locale="nb"
         onAccountSelected={acc => {
             const selectedAccounts = Array.isArray(state.selectedAccounts)
                 ? state.selectedAccounts
                 : [];
 
-            const filteredAccounts = selectedAccounts
-                .filter(a => a.accountNumber !== acc.accountNumber);
+            const filteredAccounts = selectedAccounts.filter(
+                a => a.accountNumber !== acc.accountNumber,
+            );
 
             const accountAlreadySelectedAndShouldBeRemoved =
                 filteredAccounts.length !== selectedAccounts.length;
@@ -43,16 +43,12 @@ initialState = {
                 });
             } else {
                 setState({
-                    selectedAccounts: [
-                        ...selectedAccounts,
-                        acc,
-                    ],
+                    selectedAccounts: [...selectedAccounts, acc],
                 });
             }
         }}
-        onBlur={f => f}
         selectedAccounts={state.selectedAccounts}
         value={state.value}
     />
-</React.Fragment>
+</React.Fragment>;
 ```
