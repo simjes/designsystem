@@ -8,6 +8,7 @@ const SuggestionList = ({
     highlightedIndex,
     renderSuggestion,
     renderNoMatches,
+    renderStatusbar,
     isLoading,
     getMenuProps,
     getItemProps,
@@ -15,25 +16,28 @@ const SuggestionList = ({
     isLoading ? (
         <Spinner center={true} large={true} />
     ) : (
-        <ul
-            {...getMenuProps()}
-            className="ffe-base-selector__suggestion-container-list"
-        >
-            {suggestions.length > 0 ? (
-                suggestions.map((item, index) => (
-                    <SuggestionItem
-                        key={index}
-                        item={item}
-                        isHighlighted={index === highlightedIndex}
-                        render={renderSuggestion}
-                        getItemProps={getItemProps}
-                        index={index}
-                    />
-                ))
-            ) : (
-                <li {...getItemProps()}>{renderNoMatches()}</li>
-            )}
-        </ul>
+        <>
+            <ul
+                {...getMenuProps()}
+                className="ffe-base-selector__suggestion-container-list"
+            >
+                {suggestions.length > 0 ? (
+                    suggestions.map((item, index) => (
+                        <SuggestionItem
+                            key={index}
+                            item={item}
+                            isHighlighted={index === highlightedIndex}
+                            render={renderSuggestion}
+                            getItemProps={getItemProps}
+                            index={index}
+                        />
+                    ))
+                ) : (
+                    <li {...getItemProps()}>{renderNoMatches()}</li>
+                )}
+            </ul>
+            {renderStatusbar()}
+        </>
     );
 
 SuggestionList.propTypes = {
@@ -44,10 +48,12 @@ SuggestionList.propTypes = {
     isLoading: bool,
     getMenuProps: func.isRequired,
     getItemProps: func.isRequired,
+    renderStatusbar: func,
 };
 
 SuggestionList.defaultProps = {
     renderNoMatches: () => {},
+    renderStatusbar: () => {},
     isLoading: false,
     highlightedIndex: undefined,
 };

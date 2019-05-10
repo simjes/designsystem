@@ -120,9 +120,8 @@ const BaseSelector = ({
                             isLoading={isLoading}
                             getMenuProps={getMenuProps}
                             getItemProps={getItemProps}
+                            renderStatusbar={() => renderStatusbar(closeMenu)}
                         />
-
-                        {isOpen && renderStatusbar(closeMenu)}
                     </div>
                 </div>
             )}
