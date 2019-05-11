@@ -33,7 +33,13 @@ const SuggestionList = ({
                         />
                     ))
                 ) : (
-                    <li {...getItemProps()}>{renderNoMatches()}</li>
+                    <li
+                        {...getItemProps({
+                            item: null,
+                        })}
+                    >
+                        {renderNoMatches()}
+                    </li>
                 )}
             </ul>
             {renderStatusbar()}

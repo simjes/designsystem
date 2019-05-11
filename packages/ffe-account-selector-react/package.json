@@ -38,7 +38,6 @@
     "classnames": "^2.2.5",
     "downshift": "^3.2.10",
     "prop-types": "^15.6.0",
-    "react-auto-bind": "^0.4.2",
     "react-custom-scrollbars": "^4.2.1"
   },
   "devDependencies": {

@@ -13,14 +13,15 @@ import BaseSelector from '../base-selector';
 
 const allAccountsElement = { id: 'all-accounts', accountNumber: '' };
 
-const renderSelectAll = (allSelected, locale) => (
+const renderSelectAll = (allSelected, locale, onSelectAll) => (
     <div className="ffe-account-suggestion__account--multi ffe-account-suggestion__select-all">
         <Checkbox
             checked={allSelected}
             name="ffe-account-suggestion__select-all-label"
             inline={false}
             tabIndex={-1}
-            disabled={true}
+            disabled={false}
+            onChange={onSelectAll}
         />
         <div className="ffe-account-suggestion__content-wrapper">
             <span className="ffe-account-suggestion__name ffe-link-text ffe-link-text--no-underline">
@@ -30,7 +31,6 @@ const renderSelectAll = (allSelected, locale) => (
     </div>
 );
 
-// TODO: func comp
 class AccountSelectorMulti extends React.Component {
     filterSuggestions = value => {
         const { accounts, showSelectAllOption } = this.props;
@@ -56,7 +56,7 @@ class AccountSelectorMulti extends React.Component {
     };
 
     renderSuggestion = account => {
-        const { locale, selectedAccounts, accounts } = this.props;
+        const { locale, selectedAccounts, accounts, onSelectAll } = this.props;
         const isSelected = selectedAccounts.filter(
             a => a.accountNumber === account.accountNumber,
         );
@@ -72,6 +72,7 @@ class AccountSelectorMulti extends React.Component {
         return renderSelectAll(
             selectedAccounts.length === accounts.length,
             locale,
+            onSelectAll,
         );
     };
 
@@ -109,29 +110,33 @@ class AccountSelectorMulti extends React.Component {
     };
 
     render() {
-        const { label, id, locale, value } = this.props;
+        const {
+            label,
+            id,
+            locale,
+            value,
+            onReset,
+            onChange,
+            isLoading,
+        } = this.props;
         return (
             <div className="ffe-account-selector">
                 <BaseSelector
                     id={id}
                     label={label}
+                    isLoading={isLoading}
                     suggestions={this.filterSuggestions(value)}
                     renderSuggestion={account => this.renderSuggestion(account)}
                     renderNoMatches={this.renderNoMatches}
-                    onInputChange={() => {}} //- not used in multi selector - but maybe it should?
+                    onInputChange={onChange}
                     onSuggestionSelect={this.onSuggestionSelect}
-                    // onReset={onReset} - not used, should it?
+                    onReset={onReset}
                     locale={locale}
-                    value={value} //- not used, should it?
+                    value={value}
                     shouldHideSuggestionsOnSelect={false}
-                    // shouldSelectHighlightedOnTab={false} - do not want at all
                     shouldHideSuggestionsOnBlur={false}
                     shouldHideSuggestionsOnReset={true}
                     isMultiSelect={true}
-                    // suggestionDetails={this.renderSuggestionDetails()} // TODO: not used
-                    // suggestionFilter={accountFilter} - not used
-                    // onSelect={onAccountSelected} - not used
-
                     renderStatusbar={closeMenuCallback =>
                         this.renderSuggestionDetails(closeMenuCallback)
                     }
@@ -141,7 +146,6 @@ class AccountSelectorMulti extends React.Component {
     }
 }
 
-// TODO: sjekk props er rett
 AccountSelectorMulti.propTypes = {
     /**
      * Array of objects:
@@ -160,6 +164,10 @@ AccountSelectorMulti.propTypes = {
     locale: Locale.isRequired,
     /** Overrides default string for all locales. */
     noMatches: string,
+    /* Called when pressing escape in the input field */
+    onReset: func,
+    /** Called on changes in the input field */
+    onChange: func,
     /** Called when an account is clicked */
     onAccountSelected: func.isRequired,
     onSelectAll: func,
@@ -178,11 +186,12 @@ AccountSelectorMulti.propTypes = {
 };
 
 AccountSelectorMulti.defaultProps = {
-    onSelectAll: () => {},
-    selectedAccounts: [],
+    value: '',
     showSelectAllOption: false,
     isLoading: false,
+    onReset: () => {},
+    onChange: () => {},
+    onSelectAll: () => {},
 };
-
 
 export default AccountSelectorMulti;

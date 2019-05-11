@@ -6,29 +6,41 @@ initialState = {
     value: '',
 };
 
+const accounts = [
+    {
+        accountNumber: '123456789101',
+        name: 'Brukskonto',
+        currencyCode: 'NOK',
+        balance: 1337,
+    },
+    {
+        accountNumber: '123456789102',
+        name: 'Sparekonto',
+        currencyCode: 'NOK',
+        balance: 13337,
+    },
+];
+
 <React.Fragment>
     <AccountSelectorMulti
-        accounts={[
-            {
-                accountNumber: '123456789101',
-                name: 'Brukskonto',
-                currencyCode: 'NOK',
-                balance: 1337,
-            },
-            {
-                accountNumber: '123456789102',
-                name: 'Sparekonto',
-                currencyCode: 'NOK',
-                balance: 13337,
-            },
-        ]}
+        accounts={accounts}
         id="account-selector-multi"
         label="Velg konto"
         locale="nb"
+        onChange={inputValue => setState({ value: inputValue })}
+        onSelectAll={() => {
+            const { selectedAccounts } = state;
+
+            const hasUnselectedAccounts =
+                selectedAccounts.length < accounts.length;
+
+            setState({
+                selectedAccounts: hasUnselectedAccounts ? accounts : [],
+            });
+        }}
+        showSelectAllOption={true}
         onAccountSelected={acc => {
-            const selectedAccounts = Array.isArray(state.selectedAccounts)
-                ? state.selectedAccounts
-                : [];
+            const { selectedAccounts } = state;
 
             const filteredAccounts = selectedAccounts.filter(
                 a => a.accountNumber !== acc.accountNumber,

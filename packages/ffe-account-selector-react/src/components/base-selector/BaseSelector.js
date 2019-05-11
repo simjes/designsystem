@@ -94,7 +94,7 @@ const BaseSelector = ({
                     <Label {...getLabelProps()}>{label}</Label>
                     <div className="ffe-input-group">
                         <Input
-                            readOnly={readOnly || isMultiSelect}
+                            readOnly={readOnly}
                             ariaInvalid={ariaInvalid}
                             openMenu={openMenu}
                             shouldShowSuggestionsOnFocus={
@@ -153,7 +153,6 @@ BaseSelector.propTypes = {
     shouldHideSuggestionsOnReset: bool,
     shouldHideSuggestionsOnSelect: bool,
     shouldHideSuggestionsOnBlur: bool,
-    // shouldSelectHighlightedOnTab: bool.isRequired, // TODO: dårlig accessibility å allowe dette`?
 };
 
 BaseSelector.defaultProps = {

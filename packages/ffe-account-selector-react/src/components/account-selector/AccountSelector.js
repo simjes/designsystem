@@ -7,10 +7,8 @@ import { Account, Locale } from '../../util/types';
 import BaseSelector from '../base-selector';
 
 class AccountSelector extends Component {
-    constructor(props) {
-        super(props);
-
-        this.enableFilter = false; // TODO: should be state?
+    state = {
+        enableFilter: false,
     }
 
     renderSuggestion = account => (
@@ -30,19 +28,23 @@ class AccountSelector extends Component {
 
     onAccountSelect = account => {
         if (account) {
-            this.enableFilter = false;
+            this.setState({
+                enableFilter: false,
+            })
             this.props.onAccountSelected(account);
         }
     };
 
     onInputChange = value => {
-        this.enableFilter = true;
+        this.setState({
+            enableFilter: true,
+        })
         this.props.onChange(value);
     };
 
     filterSuggestions = () => {
         const { value, accounts } = this.props;
-        const suggFilt = createAccountFilter(this.enableFilter);
+        const suggFilt = createAccountFilter(this.state.enableFilter);
         return accounts.filter(suggFilt(value));
     };
 
@@ -76,7 +78,6 @@ class AccountSelector extends Component {
                     locale={locale}
                     value={value}
                     shouldHideSuggestionsOnSelect={true}
-                    //shouldSelectHighlightedOnTab={true} // Todo: meh
                     shouldHideSuggestionsOnBlur={true}
                     shouldHideSuggestionsOnReset={false}
                     readOnly={readOnly}
