@@ -1,40 +1,29 @@
+import { Label } from '@sb1/ffe-form-react';
 import Downshift from 'downshift';
 import { arrayOf, bool, func, object, string } from 'prop-types';
-import React from 'react';
+import React, { Component, createRef } from 'react';
 import Input from '../../subcomponents/input-field';
-import { SuggestionListContainer } from '../../subcomponents/suggestion';
+import { SuggestionList } from '../../subcomponents/suggestion';
 import { Locale } from '../../util/types';
-import { Label } from '@sb1/ffe-form-react';
 
-const BaseSelector = ({
-    id,
-    locale,
-    label,
-    onReset,
-    onSuggestionSelect,
-    onInputChange,
-    suggestions,
-    renderSuggestion,
-    renderNoMatches,
-    renderStatusbar,
-    shouldShowSuggestionsOnFocus,
-    shouldHideSuggestionsOnReset,
-    shouldHideSuggestionsOnSelect,
-    shouldHideSuggestionsOnBlur,
-    value,
-    readOnly,
-    ariaInvalid,
-    isMultiSelect,
-    placeholder,
-    isLoading,
-}) => {
-    const onInputValueChange = inputValue => {
+class BaseSelector extends Component {
+    scrollbars = createRef();
+
+    onInputValueChange = inputValue => {
+        const { onInputChange, value } = this.props;
+
         if (inputValue !== value) {
             onInputChange(inputValue);
         }
     };
 
-    const stateReducer = (state, changes) => {
+    stateReducer = (state, changes) => {
+        const {
+            shouldHideSuggestionsOnReset,
+            shouldHideSuggestionsOnSelect,
+            shouldHideSuggestionsOnBlur,
+        } = this.props;
+
         switch (changes.type) {
             case Downshift.stateChangeTypes.keyDownEscape:
                 return {
@@ -62,72 +51,107 @@ const BaseSelector = ({
         }
     };
 
-    const itemToString = item => {
+    itemToString = item => {
+        const { isMultiSelect } = this.props;
         if (isMultiSelect) return '';
 
         return item ? item.name : '';
     };
 
-    return (
-        <Downshift
-            onInputValueChange={onInputValueChange}
-            inputId={id}
-            menuId={'suggestion-list'}
-            labelId={`${id}-label`}
-            onSelect={onSuggestionSelect}
-            itemToString={itemToString}
-            stateReducer={stateReducer}
-        >
-            {({
-                getInputProps,
-                getToggleButtonProps,
-                getItemProps,
-                getMenuProps,
-                getLabelProps,
-                isOpen,
-                openMenu,
-                closeMenu,
-                clearSelection,
-                highlightedIndex,
-            }) => (
-                <div className="ffe-base-selector">
-                    <Label {...getLabelProps()}>{label}</Label>
-                    <div className="ffe-input-group">
-                        <Input
-                            readOnly={readOnly}
-                            ariaInvalid={ariaInvalid}
-                            openMenu={openMenu}
-                            shouldShowSuggestionsOnFocus={
-                                shouldShowSuggestionsOnFocus
-                            }
-                            shouldHideSuggestionsOnReset={
-                                shouldHideSuggestionsOnReset
-                            }
-                            clearSelection={clearSelection}
-                            onReset={onReset}
-                            value={value}
-                            locale={locale}
-                            getInputProps={getInputProps}
-                            getToggleButtonProps={getToggleButtonProps}
-                            placeholder={placeholder}
-                        />
-                        <SuggestionListContainer
-                            isOpen={isOpen}
-                            suggestions={suggestions}
-                            highlightedIndex={highlightedIndex}
-                            renderSuggestion={renderSuggestion}
-                            renderNoMatches={renderNoMatches}
-                            isLoading={isLoading}
-                            getMenuProps={getMenuProps}
-                            getItemProps={getItemProps}
-                            renderStatusbar={() => renderStatusbar(closeMenu)}
-                        />
+    scrollToHighlightedIndex = (node, menu) => {
+        if (this.scrollbars.current && node) {
+            const index = [...menu.childNodes].indexOf(node);
+            const nodeHeight = node.clientHeight;
+
+            this.scrollbars.current.scrollTop(index * nodeHeight - nodeHeight);
+        }
+    };
+
+    render() {
+        const {
+            id,
+            locale,
+            label,
+            onReset,
+            onSuggestionSelect,
+            suggestions,
+            renderSuggestion,
+            renderNoMatches,
+            renderStatusbar,
+            shouldShowSuggestionsOnFocus,
+            shouldHideSuggestionsOnReset,
+            value,
+            readOnly,
+            ariaInvalid,
+            placeholder,
+            isLoading,
+        } = this.props;
+
+        return (
+            <Downshift
+                onInputValueChange={this.onInputValueChange}
+                inputId={id}
+                menuId={'suggestion-list'}
+                labelId={`${id}-label`}
+                onSelect={onSuggestionSelect}
+                itemToString={this.itemToString}
+                stateReducer={this.stateReducer}
+                scrollIntoView={this.scrollToHighlightedIndex}
+            >
+                {({
+                    getInputProps,
+                    getToggleButtonProps,
+                    getItemProps,
+                    getMenuProps,
+                    getLabelProps,
+                    isOpen,
+                    openMenu,
+                    closeMenu,
+                    clearSelection,
+                    highlightedIndex,
+                }) => (
+                    <div className="ffe-base-selector">
+                        <Label {...getLabelProps()}>{label}</Label>
+                        <div className="ffe-input-group">
+                            <Input
+                                readOnly={readOnly}
+                                ariaInvalid={ariaInvalid}
+                                openMenu={openMenu}
+                                shouldShowSuggestionsOnFocus={
+                                    shouldShowSuggestionsOnFocus
+                                }
+                                shouldHideSuggestionsOnReset={
+                                    shouldHideSuggestionsOnReset
+                                }
+                                clearSelection={clearSelection}
+                                onReset={onReset}
+                                value={value}
+                                locale={locale}
+                                getInputProps={getInputProps}
+                                getToggleButtonProps={getToggleButtonProps}
+                                placeholder={placeholder}
+                            />
+                            <SuggestionList
+                                ref={this.scrollbars}
+                                isOpen={isOpen}
+                                suggestions={suggestions}
+                                highlightedIndex={highlightedIndex}
+                                renderSuggestion={renderSuggestion}
+                                renderNoMatches={renderNoMatches}
+                                isLoading={isLoading}
+                                getMenuProps={getMenuProps}
+                                getItemProps={getItemProps}
+                                renderStatusbar={() =>
+                                    renderStatusbar(closeMenu)
+                                }
+                            />
+                        </div>
                     </div>
-                </div>
-            )}
-        </Downshift>
-    );
-};
+                )}
+            </Downshift>
+        );
+    }
+}
 
 BaseSelector.propTypes = {
     suggestions: arrayOf(object).isRequired,
@@ -135,13 +159,12 @@ BaseSelector.propTypes = {
     onInputChange: func.isRequired,
     locale: Locale.isRequired,
     placeholder: string,
-    ariaInvalid: bool, // TODO: can I use aria-invalid?
+    ariaInvalid: bool,
     id: string.isRequired,
     label: string.isRequired,
     readOnly: bool,
     isMultiSelect: bool,
     isLoading: bool,
-
     onReset: func,
     onSuggestionSelect: func.isRequired,
 

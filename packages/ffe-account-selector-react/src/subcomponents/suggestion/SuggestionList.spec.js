@@ -1,10 +1,9 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
+import { shallow } from 'enzyme';
 
 import Spinner from '@sb1/ffe-spinner-react';
 
 import SuggestionList from './SuggestionList';
-import SuggestionListContainer from './SuggestionListContainer';
 
 function suggestions() {
     return [{ header: '1' }, { header: '2' }];
@@ -31,20 +30,8 @@ function propsSuggestionList(_suggestions = suggestions()) {
     };
 }
 
-function propsSuggestionListContainer() {
-    return {
-        ...propsSuggestionList(),
-        highlightedIndex: 2,
-        autoHeight: false,
-    };
-}
-
 function shallowSuggestionList(props) {
     return shallow(<SuggestionList {...propsSuggestionList()} {...props} />);
-}
-
-function mountSuggestionListContainer(props = propsSuggestionListContainer()) {
-    return mount(<SuggestionListContainer {...props} />);
 }
 
 describe('<SuggestionList />', () => {
@@ -74,42 +61,5 @@ describe('<SuggestionList />', () => {
     it('should render spinner', () => {
         const wrapper = shallowSuggestionList({ isLoading: true });
         expect(wrapper.find(Spinner).length === 1).toBe(true);
-    });
-});
-
-describe('<SuggestionListContainer />', () => {
-    it('should set scrollPos to start', () => {
-        const component = mountSuggestionListContainer().instance();
-        const scrollSpy = jest.spyOn(component.scrollbars, 'scrollTop');
-
-        component.setScrollPosStart();
-        expect(scrollSpy).toHaveBeenCalledWith(0);
-    });
-
-    it('should set scrollPos to end', () => {
-        const component = mountSuggestionListContainer().instance();
-        component.scrollbars.getScrollHeight = jest.fn().mockReturnValue(300);
-        const scrollSpy = jest.spyOn(component.scrollbars, 'scrollTop');
-
-        component.setScrollPosEnd();
-        expect(scrollSpy).toHaveBeenCalledWith(300);
-    });
-
-    it('should set scrollPos to next', () => {
-        const component = mountSuggestionListContainer().instance();
-        component.refHighlightedSuggestion({ clientHeight: 50 });
-        const scrollSpy = jest.spyOn(component.scrollbars, 'scrollTop');
-
-        component.setScrollPosNext();
-        expect(scrollSpy).toHaveBeenCalledWith(100);
-    });
-
-    it('should set scrollPos to previous', () => {
-        const component = mountSuggestionListContainer().instance();
-        component.refHighlightedSuggestion({ clientHeight: 50 });
-        const scrollSpy = jest.spyOn(component.scrollbars, 'scrollTop');
-
-        component.setScrollPosPrevious();
-        expect(scrollSpy).toHaveBeenCalledWith(50);
     });
 });

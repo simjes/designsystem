@@ -14,7 +14,6 @@ const SuggestionItem = ({
             item,
             index,
         })}
-        id={`suggestion-item-${index}`}
         className={classNames('ffe-account-suggestion', {
             'ffe-account-suggestion--highlighted': isHighlighted,
         })}
