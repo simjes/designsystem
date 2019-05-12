@@ -42,8 +42,12 @@ const Input = ({
                             onReset();
                         }
                     },
-                    onClick: shouldShowSuggestionsOnFocus ? openMenu : null,
-                    onFocus: shouldShowSuggestionsOnFocus ? openMenu : null,
+                    onClick: shouldShowSuggestionsOnFocus
+                        ? openMenu
+                        : undefined,
+                    onFocus: shouldShowSuggestionsOnFocus
+                        ? openMenu
+                        : undefined,
                 })}
                 readOnly={readOnly}
                 className="ffe-input-field ffe-base-selector__input-field"
@@ -84,7 +88,7 @@ const Input = ({
 
 Input.propTypes = {
     readOnly: bool,
-    ariaInvalid: bool, // TODO: can I do aria-invalid?
+    ariaInvalid: bool,
     placeholder: string,
     onReset: func.isRequired,
     value: string.isRequired,

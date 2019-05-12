@@ -89,7 +89,7 @@ SuggestionList.defaultProps = {
     renderNoMatches: () => {},
     renderStatusbar: () => {},
     isLoading: false,
-    highlightedIndex: undefined,
+    highlightedIndex: null,
     heightMax: 300,
     autoHeight: true,
 };

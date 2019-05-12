@@ -22,6 +22,7 @@ class BaseSelector extends Component {
             shouldHideSuggestionsOnReset,
             shouldHideSuggestionsOnSelect,
             shouldHideSuggestionsOnBlur,
+            isMultiSelect,
         } = this.props;
 
         switch (changes.type) {
@@ -35,6 +36,9 @@ class BaseSelector extends Component {
             case Downshift.stateChangeTypes.keyDownEnter:
                 return {
                     ...changes,
+                    highlightedIndex: isMultiSelect
+                        ? state.highlightedIndex
+                        : null,
                     isOpen: !shouldHideSuggestionsOnSelect,
                 };
 

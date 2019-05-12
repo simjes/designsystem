@@ -1,7 +1,7 @@
 Kontovelger for én konto.
 
 ```js
-initialState = { value: '' };
+initialState = { value: '', selectedAccount: null };
 
 <React.Fragment>
     <AccountSelector
@@ -38,7 +38,7 @@ initialState = { value: '' };
             setState({ value: acc.name, selectedAccount: acc })
         }
         onChange={value => setState({ value })}
-        onReset={() => setState({ value: '', selectedAccount: undefined })}
+        onReset={() => setState({ value: '', selectedAccount: null })}
         value={state.value}
         selectedAccount={state.selectedAccount}
     />
